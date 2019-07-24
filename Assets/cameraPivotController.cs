@@ -10,7 +10,7 @@ public class cameraPivotController : MonoBehaviour
 
     // private variables -------------------
     private Vector3[] m_POV;                    // Instance of Point of view around the pivot
-    private Vector3 m_target;                   // Target rotation of where the pivot should go
+    private float m_target;                     // Target rotation of where the pivot should go
     private Vector3 m_currentRot;               // Current rotation of the pivot
     private float m_step = 90f;                 // Step that the the rotation uses for each transformation
     private bool m_isMoving = false;            // Check if the pivot is moving atm
@@ -52,7 +52,7 @@ public class cameraPivotController : MonoBehaviour
         {
             // Catch the current rotation and pivot it to the right
             m_currentRot = transform.rotation.eulerAngles;
-            m_target = new Vector3 (m_currentRot.x, m_currentRot.y - m_step, m_currentRot.z);
+            m_target = m_currentRot.y - m_step;
 
             // Can now move
             m_isMoving = true;
@@ -63,7 +63,7 @@ public class cameraPivotController : MonoBehaviour
         {
             // Catch the current rotation and pivot it to the right
             m_currentRot = transform.rotation.eulerAngles;
-            m_target = new Vector3 (m_currentRot.x, m_currentRot.y + m_step, m_currentRot.z);
+            m_target = m_currentRot.y + m_step;
 
             // Can now move
             m_isMoving = true;
@@ -73,12 +73,30 @@ public class cameraPivotController : MonoBehaviour
     // Moving animation ---------------------------------------------------------------
     private void RotatePOV()
     {
-        float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target.y, ref m_rVelocity, 0.5f);
+        // Variable for speed and interval of animation
+        float speed = 0.2f;
+        float interval = 0.5f;
+
+        // Smooth animation from the current angle to the target angle
+        float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, speed);
         transform.eulerAngles = new Vector3(m_currentRot.x, nextPos, m_currentRot.z);
+        
 
-        if (m_currentRot.y >= m_target.y - 0.01f)
+        // If almost at destination on the left side
+        if (m_currentRot.y < m_target  &&  transform.eulerAngles.y >= m_target - interval)
+        {
+            // Reset values
+            transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
             m_isMoving = false;
+        }
 
+        // If almost at destination on the right side
+        if (m_currentRot.y > m_target  &&  transform.eulerAngles.y <= m_target + interval)
+        {
+            // Reset values
+            transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
+            m_isMoving = false;
+        }
 
     }
 }
