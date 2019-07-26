@@ -53,11 +53,13 @@ public class cameraPivotController : MonoBehaviour
             // Catch the current rotation and pivot it to the right
             m_currentRot = transform.rotation.eulerAngles;
             m_target = m_currentRot.y - m_step;
-        
+
+            m_target = WrapAngle(m_target);
             // Can now move
             m_isMoving = true;
 
             Debug.Log("Target is : " + m_target);
+            Debug.Log("Current ROT is : " + m_currentRot);
         }
 
         // if it goes left
@@ -67,10 +69,12 @@ public class cameraPivotController : MonoBehaviour
             m_currentRot = transform.rotation.eulerAngles;
             m_target = m_currentRot.y + m_step;
 
+            m_target = WrapAngle(m_target);
             // Can now move
             m_isMoving = true;
 
             Debug.Log("Target is : " + m_target);
+            Debug.Log("Current ROT is : " + m_currentRot);
         }
     }
 
@@ -83,7 +87,12 @@ public class cameraPivotController : MonoBehaviour
 
         // Smooth animation from the current angle to the target angle
         float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, speed);
-        transform.eulerAngles = new Vector3(m_currentRot.x, nextPos, m_currentRot.z);
+        transform.localEulerAngles = new Vector3(m_currentRot.x, nextPos, m_currentRot.z);
+
+        // Return a valid interpretation of angle
+        nextPos = WrapAngle(nextPos);
+        Debug.Log("Next Pos is : " + nextPos);
+
 
         // If almost at destination on the left side
         if (m_currentRot.y < m_target  &&  nextPos >= m_target - interval)
@@ -100,5 +109,15 @@ public class cameraPivotController : MonoBehaviour
             transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
             m_isMoving = false;
         }
+    }
+
+    private float WrapAngle(float angle)
+    {
+        angle %= 360;
+        if (angle > 180f)
+            angle -= 360f;
+
+        Debug.Log(angle);
+        return angle;
     }
 }
