@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class hideFromView : MonoBehaviour
 {
@@ -26,9 +27,9 @@ public class hideFromView : MonoBehaviour
     {
         // Check is the object is currently hidden or not
         if(m_hiding)
-            m_render.enabled = false;
+            m_render.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
         else
-            m_render.enabled = true;
+            m_render.shadowCastingMode = ShadowCastingMode.On;
     }
 
     // ------------------------------------------
