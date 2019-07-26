@@ -6,12 +6,12 @@ public class cameraPivotController : MonoBehaviour
 {
 
     // public variables --------------------
-    
+    public float m_speed = 0.05f;                  // Speed of the animation
+    public bool m_listenMouse = false;          // If the mouse input is triggered, only listen to it
 
     // private variables -------------------
     private float m_target;                     // Target rotation of where the pivot should go
     private float m_rVelocity = 0.0f;           // Velocity used in the rotation movement
-    private bool m_listenMouse = false;         // If the mouse input is triggered, only listen to it
 
 
     // -------------------------------------
@@ -21,6 +21,7 @@ public class cameraPivotController : MonoBehaviour
     {
  
     }
+
 
     // -------------------------------------
     // Update is called once per frame
@@ -52,17 +53,14 @@ public class cameraPivotController : MonoBehaviour
     // Moving animation ---------------------------------------------------------------
     private void RotatePOV()
     {
-        // Variable for speed 0f animation
-        float speed = 0.2f;
-
         // Check which input to listen to
         if (!m_listenMouse)
-            m_target += Input.GetAxis("Horizontal");
+            m_target -= Input.GetAxis("Horizontal");
         else if (m_listenMouse)
             m_target += Input.GetAxis("Mouse X");
 
         // Smooth animation from the current angle to the target angle
-        float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, speed);
+        float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, m_speed);
         transform.localEulerAngles = new Vector3(transform.eulerAngles.x, nextPos, transform.eulerAngles.z);
     }
 }
