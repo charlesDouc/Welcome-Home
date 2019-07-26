@@ -9,12 +9,9 @@ public class cameraPivotController : MonoBehaviour
     
 
     // private variables -------------------
-    private Vector3[] m_POV;                    // Instance of Point of view around the pivot
     private float m_target;                     // Target rotation of where the pivot should go
-    private Vector3 m_currentRot;               // Current rotation of the pivot
-    private float m_step = 90f;                 // Step that the the rotation uses for each transformation
-    private bool m_isMoving = false;            // Check if the pivot is moving atm
     private float m_rVelocity = 0.0f;           // Velocity used in the rotation movement
+    private bool m_listenMouse = false;         // If the mouse input is triggered, only listen to it
 
 
     // -------------------------------------
@@ -33,11 +30,8 @@ public class cameraPivotController : MonoBehaviour
         // Always chgeck for inputs 
         CheckInput();
 
-        // If an inpout has been triggered
-        if (m_isMoving)
-            RotatePOV();
-
-        
+        // Rotate pivot
+        RotatePOV();
     }
 
 
@@ -47,77 +41,28 @@ public class cameraPivotController : MonoBehaviour
     // Check if the user presses left or right ----------------------------------------
     private void CheckInput()
     {
-        // if it goes right
-        if (Input.GetAxis("Horizontal") > 0f && !m_isMoving)
-        {
-            // Catch the current rotation and pivot it to the right
-            m_currentRot = transform.rotation.eulerAngles;
-            m_target = m_currentRot.y - m_step;
-
-            m_target = WrapAngle(m_target);
-            // Can now move
-            m_isMoving = true;
-
-            Debug.Log("Target is : " + m_target);
-            Debug.Log("Current ROT is : " + m_currentRot);
-        }
-
-        // if it goes left
-        if (Input.GetAxis("Horizontal") < 0f && !m_isMoving)
-        {
-            // Catch the current rotation and pivot it to the right
-            m_currentRot = transform.rotation.eulerAngles;
-            m_target = m_currentRot.y + m_step;
-
-            m_target = WrapAngle(m_target);
-            // Can now move
-            m_isMoving = true;
-
-            Debug.Log("Target is : " + m_target);
-            Debug.Log("Current ROT is : " + m_currentRot);
-        }
+        // Check if the mouse is triggerred
+        if (Input.GetAxis("Fire1") > 0)
+            m_listenMouse = true;
+        else
+            m_listenMouse = false;
     }
+
 
     // Moving animation ---------------------------------------------------------------
     private void RotatePOV()
     {
-        // Variable for speed and interval of animation
+        // Variable for speed 0f animation
         float speed = 0.2f;
-        float interval = 0.5f;
+
+        // Check which input to listen to
+        if (!m_listenMouse)
+            m_target += Input.GetAxis("Horizontal");
+        else if (m_listenMouse)
+            m_target += Input.GetAxis("Mouse X");
 
         // Smooth animation from the current angle to the target angle
         float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, speed);
-        transform.localEulerAngles = new Vector3(m_currentRot.x, nextPos, m_currentRot.z);
-
-        // Return a valid interpretation of angle
-        nextPos = WrapAngle(nextPos);
-        Debug.Log("Next Pos is : " + nextPos);
-
-
-        // If almost at destination on the left side
-        if (m_currentRot.y < m_target  &&  nextPos >= m_target - interval)
-        {
-            // Reset values
-            transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
-            m_isMoving = false;
-        }
-
-        // If almost at destination on the right side and in positive numbers
-        if (m_currentRot.y > m_target  &&  nextPos <= m_target + interval)
-        {
-            // Reset values
-            transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
-            m_isMoving = false;
-        }
-    }
-
-    private float WrapAngle(float angle)
-    {
-        angle %= 360;
-        if (angle > 180f)
-            angle -= 360f;
-
-        Debug.Log(angle);
-        return angle;
+        transform.localEulerAngles = new Vector3(transform.eulerAngles.x, nextPos, transform.eulerAngles.z);
     }
 }
