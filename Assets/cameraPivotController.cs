@@ -14,7 +14,7 @@ public class cameraPivotController : MonoBehaviour
     private Vector3 m_currentRot;               // Current rotation of the pivot
     private float m_step = 90f;                 // Step that the the rotation uses for each transformation
     private bool m_isMoving = false;            // Check if the pivot is moving atm
-    private float m_rVelocity = 0.0f;
+    private float m_rVelocity = 0.0f;           // Velocity used in the rotation movement
 
 
     // -------------------------------------
@@ -53,9 +53,11 @@ public class cameraPivotController : MonoBehaviour
             // Catch the current rotation and pivot it to the right
             m_currentRot = transform.rotation.eulerAngles;
             m_target = m_currentRot.y - m_step;
-
+        
             // Can now move
             m_isMoving = true;
+
+            Debug.Log("Target is : " + m_target);
         }
 
         // if it goes left
@@ -67,6 +69,8 @@ public class cameraPivotController : MonoBehaviour
 
             // Can now move
             m_isMoving = true;
+
+            Debug.Log("Target is : " + m_target);
         }
     }
 
@@ -80,23 +84,21 @@ public class cameraPivotController : MonoBehaviour
         // Smooth animation from the current angle to the target angle
         float nextPos = Mathf.SmoothDampAngle(transform.eulerAngles.y, m_target, ref m_rVelocity, speed);
         transform.eulerAngles = new Vector3(m_currentRot.x, nextPos, m_currentRot.z);
-        
 
         // If almost at destination on the left side
-        if (m_currentRot.y < m_target  &&  transform.eulerAngles.y >= m_target - interval)
+        if (m_currentRot.y < m_target  &&  nextPos >= m_target - interval)
         {
             // Reset values
             transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
             m_isMoving = false;
         }
 
-        // If almost at destination on the right side
-        if (m_currentRot.y > m_target  &&  transform.eulerAngles.y <= m_target + interval)
+        // If almost at destination on the right side and in positive numbers
+        if (m_currentRot.y > m_target  &&  nextPos <= m_target + interval)
         {
             // Reset values
             transform.eulerAngles = new Vector3(m_currentRot.x, m_target, m_currentRot.z);
             m_isMoving = false;
         }
-
     }
 }
